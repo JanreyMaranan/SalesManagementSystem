@@ -19,3 +19,5 @@ If you are developing a production application, we recommend using TypeScript wi
 Project scaffold setup completed.
 ## PR-02
 Supabase client configured.
+## PR-03
+Routing skeleton setup completed.
