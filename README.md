@@ -17,3 +17,5 @@ If you are developing a production application, we recommend using TypeScript wi
 
 ## PR-01
 Project scaffold setup completed.
+## PR-02
+Supabase client configured.
