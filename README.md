@@ -21,3 +21,5 @@ Project scaffold setup completed.
 Supabase client configured.
 ## PR-03
 Routing skeleton setup completed.
+## PR-04
+GitHub protection rules configured.
