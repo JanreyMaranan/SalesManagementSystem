@@ -18,7 +18,9 @@ import DeletedItems from "./pages/DeletedItems"
 import AuthCallback from "./pages/AuthCallback"
 import Login from "./pages/Login"
 
-function App() {
+
+ App() {
+  const userType = "USER"
   return (
     <BrowserRouter>
       <Routes>
@@ -41,7 +43,14 @@ function App() {
         <Route path="/lookups/prices" element={<Prices />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/deleted-items" element={<DeletedItems />} />
+       <Route
+  path="/deleted-items"
+  element={
+    userType === "USER"
+      ? <Navigate to="/sales" />
+      : <DeletedItems />
+  }
+/>
         <Route path="/auth/callback" element={<AuthCallback />} />
 
       </Routes>
