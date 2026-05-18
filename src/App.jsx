@@ -6,6 +6,7 @@ import {
 
 import ProtectedRoute from "./routes/ProtectedRoute"
 
+import Register from "./pages/Register"
 import Sales from "./pages/Sales"
 import TransNo from "./pages/TransNo"
 import Customers from "./pages/Customers"
@@ -24,6 +25,7 @@ function App() {
       <Routes>
 
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/sales"
