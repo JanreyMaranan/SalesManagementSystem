@@ -5,7 +5,7 @@ import {
   Navigate
 } from "react-router-dom"
 import ProtectedRoute from "./routes/ProtectedRoute"
-
+import Register from "./pages/Register"
 import Sales from "./pages/Sales"
 import TransNo from "./pages/TransNo"
 import Customers from "./pages/Customers"
@@ -18,41 +18,23 @@ import DeletedItems from "./pages/DeletedItems"
 import AuthCallback from "./pages/AuthCallback"
 import Login from "./pages/Login"
 
-
 function App() {
-  const userType = "USER"
   return (
     <BrowserRouter>
       <Routes>
-
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
-
-        <Route
-          path="/sales"
-          element={
-            <ProtectedRoute>
-              <Sales />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="/sales/transNo" element={<TransNo />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
+        <Route path="/sales/:transNo" element={<TransNo />} />
         <Route path="/lookups/customers" element={<Customers />} />
         <Route path="/lookups/employees" element={<Employees />} />
         <Route path="/lookups/products" element={<Products />} />
         <Route path="/lookups/prices" element={<Prices />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/admin" element={<Admin />} />
-       <Route
-  path="/deleted-items"
-  element={
-    userType === "USER"
-      ? <Navigate to="/sales" />
-      : <DeletedItems />
-  }
-/>
+        <Route path="/deleted-items" element={<DeletedItems />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-
       </Routes>
     </BrowserRouter>
   )
