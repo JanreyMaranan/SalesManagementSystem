@@ -1,89 +1,100 @@
-import { useState } from 'react'
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "../lib/supabase"
 
 function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
+
     if (!email || !password) {
-      setError('Please enter your email and password.')
+      setError("Please enter your email and password.")
       return
     }
-    setError('')
-    alert('Login submitted! (will connect to Supabase later)')
+
+    setError("")
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    navigate("/sales")
+  }
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (error) {
+      setError(error.message)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <div className="bg-white w-full max-w-md rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Sales Management System
+        </h1>
 
-        {/* Header */}
-        <h1 className="text-2xl font-bold text-center text-blue-600 mb-1">Hope, Inc.</h1>
-        <p className="text-center text-gray-500 text-sm mb-6">Sales Management System</p>
-
-        {/* Error Message */}
         {error && (
-          <div className="bg-red-100 text-red-600 text-sm px-4 py-2 rounded-lg mb-4">
+          <p className="bg-red-100 text-red-700 text-sm p-3 rounded mb-4">
             {error}
-          </div>
+          </p>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="email"
+              className="w-full border rounded px-3 py-2"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter email"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium mb-1">Password</label>
             <input
               type="password"
+              className="w-full border rounded px-3 py-2"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter password"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
+            className="w-full bg-blue-600 text-white py-2 rounded"
           >
-            Sign In
+            Sign in
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center my-4">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="px-3 text-xs text-gray-400">or</span>
-          <div className="flex-1 h-px bg-gray-300" />
-        </div>
-
-        {/* Google Button */}
         <button
-          onClick={() => alert('Google OAuth — will connect to Supabase later')}
-          className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition"
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full border mt-4 py-2 rounded"
         >
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" />
           Sign in with Google
         </button>
-
-        {/* Register Link */}
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Don't have an account?{' '}
-          <a href="/register" className="text-blue-600 hover:underline font-medium">Register</a>
-        </p>
-
       </div>
     </div>
   )
