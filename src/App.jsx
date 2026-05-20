@@ -1,9 +1,9 @@
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  Navigate
 } from "react-router-dom"
-
 import ProtectedRoute from "./routes/ProtectedRoute"
 
 import Sales from "./pages/Sales"
@@ -19,7 +19,7 @@ import AuthCallback from "./pages/AuthCallback"
 import Login from "./pages/Login"
 
 
- App() {
+function App() {
   const userType = "USER"
   return (
     <BrowserRouter>
