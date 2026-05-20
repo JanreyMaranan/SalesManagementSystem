@@ -1,7 +1,8 @@
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  Navigate
 } from "react-router-dom"
 
 import ProtectedRoute from "./routes/ProtectedRoute"
@@ -23,20 +24,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/sales"
-          element={
-            <ProtectedRoute>
-              <Sales />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="/sales/transNo" element={<TransNo />} />
+        <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
+        <Route path="/sales/:transNo" element={<TransNo />} />
         <Route path="/lookups/customers" element={<Customers />} />
         <Route path="/lookups/employees" element={<Employees />} />
         <Route path="/lookups/products" element={<Products />} />
@@ -45,7 +38,6 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/deleted-items" element={<DeletedItems />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-
       </Routes>
     </BrowserRouter>
   )
