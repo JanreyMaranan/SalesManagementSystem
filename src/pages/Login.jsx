@@ -1,28 +1,31 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { supabase } from "../lib/supabase"
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
-export default function Login() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    if (!email || !password) { setError("Please enter your email and password."); return }
-    try {
-      setLoading(true)
-      setError("")
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) throw error
-      navigate("/sales")
-    } catch (err) {
-      setError(err.message || "Login failed.")
-    } finally {
-      setLoading(false)
+    if (!email || !password) {
+      setError('Please enter your email and password.')
+      return
     }
+    setError('')
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) { setError(error.message); return }
+    navigate('/sales')
+  }
+
+  const handleGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` }
+    })
   }
 
   return (
@@ -44,12 +47,27 @@ export default function Login() {
               placeholder="••••••••"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
-          <button type="submit" disabled={loading}
+          <button type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
-            {loading ? "Signing in..." : "Sign In"}
+            Sign In
           </button>
         </form>
+        <div className="flex items-center my-4">
+          <div className="flex-1 h-px bg-gray-300" />
+          <span className="px-3 text-xs text-gray-400">or</span>
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+        <button onClick={handleGoogle}
+          className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" />
+          Sign in with Google
+        </button>
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Don't have an account?{' '}
+          <a href="/register" className="text-blue-600 hover:underline font-medium">Register</a>
+        </p>
       </div>
     </div>
   )
 }
+export default LoginPage
