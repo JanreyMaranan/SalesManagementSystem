@@ -6,21 +6,30 @@ export default function AuthCallback() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/sales")
-      } else {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) { navigate("/login?error=no_session"); return }
+
+      const { data, error } = await supabase
+        .from("user")
+        .select("userid, record_status")
+        .eq("userid", session.user.id)
+        .single()
+
+      console.log("AuthCallback data:", data, "error:", error)
+
+      if (error || !data) {
+        navigate("/login?error=user_not_found")
+      } else if (data.record_status !== "ACTIVE") {
         navigate("/login?error=not_activated")
+      } else {
+        navigate("/sales")
       }
     })
   }, [navigate])
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-4">
-      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-600 text-sm font-medium">
-        Signing you in, please wait...
-      </p>
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-gray-500">Logging you in...</p>
     </div>
   )
 }
