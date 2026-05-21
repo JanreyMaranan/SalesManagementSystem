@@ -15,7 +15,7 @@ function AddLineItemModal({ transNo, onClose }) {
     setForm(f => ({ ...f, prodCode, unitPrice: '' }))
     if (!prodCode) return
     const { data } = await supabase
-      .from('pricehistory')
+      .from('pricehist')
       .select('unitprice, effdate')
       .eq('prodcode', prodCode)
       .order('effdate', { ascending: false })
@@ -32,7 +32,6 @@ function AddLineItemModal({ transNo, onClose }) {
       transno: transNo,
       prodcode: form.prodCode,
       quantity: parseInt(form.quantity),
-      unitprice: parseFloat(form.unitPrice),
       record_status: 'ACTIVE'
     })
     if (err) { setError(err.message); setSaving(false); return }
@@ -63,7 +62,7 @@ function AddLineItemModal({ transNo, onClose }) {
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price <span className="ml-2 text-xs text-blue-500">(auto-filled)</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price <span className="ml-2 text-xs text-blue-500">(auto-filled from price history)</span></label>
             <input type="number" value={form.unitPrice} readOnly
               placeholder="Select a product first"
               className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2 text-sm text-gray-500 cursor-not-allowed" />
