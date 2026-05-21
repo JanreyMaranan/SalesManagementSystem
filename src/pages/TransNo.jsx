@@ -33,9 +33,21 @@ function TransNo() {
   const fetchDetails = async () => {
     const { data } = await supabase
       .from('salesdetail')
-      .select(`transno, prodcode, quantity, unitprice, record_status, product:prodcode(description)`)
+      .select(`transno, prodcode, quantity, record_status, product:prodcode(description)`)
       .eq('transno', transNo)
-    setDetails(data || [])
+
+    // Get price for each product
+    const withPrices = await Promise.all((data || []).map(async (d) => {
+      const { data: ph } = await supabase
+        .from('pricehist')
+        .select('unitprice')
+        .eq('prodcode', d.prodcode)
+        .order('effdate', { ascending: false })
+        .limit(1)
+      return { ...d, unitprice: ph?.[0]?.unitprice || 0 }
+    }))
+
+    setDetails(withPrices)
     setLoading(false)
   }
 
