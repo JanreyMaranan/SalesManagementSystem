@@ -6,39 +6,30 @@ export default function AuthCallback() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const run = async () => {
-      // Exchange the code in the URL for a session
-      const { data, error } = await supabase.auth.exchangeCodeForSession(
-        window.location.href
-      )
-      
-      console.log("Exchange result:", data, error)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log("Session:", session)
 
-      if (error || !data.session) {
+      if (!session) {
         navigate("/login?error=no_session")
         return
       }
 
-      const session = data.session
-
-      const { data: user, error: userError } = await supabase
+      const { data, error } = await supabase
         .from("user")
         .select("userid, record_status")
         .eq("userid", session.user.id)
         .single()
 
-      console.log("User:", user, userError)
+      console.log("User:", data, error)
 
-      if (userError || !user) {
+      if (error || !data) {
         navigate("/login?error=user_not_found")
-      } else if (user.record_status !== "ACTIVE") {
+      } else if (data.record_status !== "ACTIVE") {
         navigate("/login?error=not_activated")
       } else {
         navigate("/sales")
       }
-    }
-
-    run()
+    })
   }, [navigate])
 
   return (
