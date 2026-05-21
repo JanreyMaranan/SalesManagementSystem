@@ -6,29 +6,39 @@ export default function AuthCallback() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth event:", event, "Session:", session)
+    const run = async () => {
+      // Exchange the code in the URL for a session
+      const { data, error } = await supabase.auth.exchangeCodeForSession(
+        window.location.href
+      )
+      
+      console.log("Exchange result:", data, error)
 
-      if (event === "SIGNED_IN" && session) {
-        const { data, error } = await supabase
-          .from("user")
-          .select("userid, record_status")
-          .eq("userid", session.user.id)
-          .single()
-
-        console.log("User row:", data, "Error:", error)
-
-        if (error || !data) {
-          navigate("/login?error=user_not_found")
-        } else if (data.record_status !== "ACTIVE") {
-          navigate("/login?error=not_activated")
-        } else {
-          navigate("/sales")
-        }
-      } else if (event === "SIGNED_OUT") {
-        navigate("/login")
+      if (error || !data.session) {
+        navigate("/login?error=no_session")
+        return
       }
-    })
+
+      const session = data.session
+
+      const { data: user, error: userError } = await supabase
+        .from("user")
+        .select("userid, record_status")
+        .eq("userid", session.user.id)
+        .single()
+
+      console.log("User:", user, userError)
+
+      if (userError || !user) {
+        navigate("/login?error=user_not_found")
+      } else if (user.record_status !== "ACTIVE") {
+        navigate("/login?error=not_activated")
+      } else {
+        navigate("/sales")
+      }
+    }
+
+    run()
   }, [navigate])
 
   return (
