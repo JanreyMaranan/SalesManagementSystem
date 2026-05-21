@@ -12,7 +12,7 @@ function Products() {
     const fetch = async () => {
       const { data } = await supabase
         .from('product')
-        .select(`*, prices:pricehistory(unitprice, effdate)`)
+        .select(`*, prices:pricehist(unitprice, effdate)`)
         .order('prodcode')
       setProducts(data || [])
       setLoading(false)
