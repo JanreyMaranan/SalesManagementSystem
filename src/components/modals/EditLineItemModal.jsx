@@ -3,19 +3,25 @@ import { supabase } from '../../lib/supabase'
 
 function EditLineItemModal({ item, transNo, onClose }) {
   const [products, setProducts] = useState([])
-  const [form, setForm] = useState({ prodCode: item.prodcode, quantity: item.quantity, unitPrice: item.unitprice })
+  const [form, setForm] = useState({ prodCode: item.prodcode, quantity: item.quantity, unitPrice: '' })
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     supabase.from('product').select('prodcode, description').order('description').then(({ data }) => setProducts(data || []))
+    // Load current price
+    supabase.from('pricehist').select('unitprice').eq('prodcode', item.prodcode)
+      .order('effdate', { ascending: false }).limit(1)
+      .then(({ data }) => {
+        if (data?.[0]) setForm(f => ({ ...f, unitPrice: data[0].unitprice }))
+      })
   }, [])
 
   const handleProductChange = async (prodCode) => {
     setForm(f => ({ ...f, prodCode, unitPrice: '' }))
     if (!prodCode) return
     const { data } = await supabase
-      .from('pricehistory')
+      .from('pricehist')
       .select('unitprice, effdate')
       .eq('prodcode', prodCode)
       .order('effdate', { ascending: false })
@@ -29,7 +35,7 @@ function EditLineItemModal({ item, transNo, onClose }) {
     if (form.quantity <= 0) { setError('Quantity must be greater than 0.'); return }
     setSaving(true)
     const { error: err } = await supabase.from('salesdetail')
-      .update({ prodcode: form.prodCode, quantity: parseInt(form.quantity), unitprice: parseFloat(form.unitPrice) })
+      .update({ prodcode: form.prodCode, quantity: parseInt(form.quantity) })
       .eq('transno', transNo)
       .eq('prodcode', item.prodcode)
     if (err) { setError(err.message); setSaving(false); return }
@@ -60,7 +66,7 @@ function EditLineItemModal({ item, transNo, onClose }) {
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price <span className="ml-2 text-xs text-blue-500">(auto-filled)</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Unit Price <span className="ml-2 text-xs text-blue-500">(from price history)</span></label>
             <input type="number" value={form.unitPrice} readOnly
               className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2 text-sm text-gray-500 cursor-not-allowed" />
           </div>
