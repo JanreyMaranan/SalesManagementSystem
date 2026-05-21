@@ -44,13 +44,22 @@ function SalesPage() {
         .eq('transno', s.transno)
         .eq('record_status', 'ACTIVE')
 
-      const { data: details } = await supabase
-        .from('salesdetail')
-        .select('quantity, unitprice')
-        .eq('transno', s.transno)
-        .eq('record_status', 'ACTIVE')
+const { data: details } = await supabase
+  .from('salesdetail')
+  .select('quantity, prodcode')
+  .eq('transno', s.transno)
+  .eq('record_status', 'ACTIVE')
 
-      const total = details?.reduce((sum, d) => sum + d.quantity * d.unitprice, 0) || 0
+let total = 0
+for (const d of details || []) {
+  const { data: ph } = await supabase
+    .from('pricehist')
+    .select('unitprice')
+    .eq('prodcode', d.prodcode)
+    .order('effdate', { ascending: false })
+    .limit(1)
+  total += d.quantity * (ph?.[0]?.unitprice || 0)
+}
 
       return {
         transNo: s.transno,
