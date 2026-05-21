@@ -30,6 +30,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/deleted-items" element={<DeletedItems />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="*" element={<AuthCallback />} />
       </Routes>
     </BrowserRouter>
   )
