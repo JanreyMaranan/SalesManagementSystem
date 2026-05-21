@@ -6,16 +6,36 @@ export default function AuthCallback() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { navigate("/login?error=no_session"); return }
+    const handle = async () => {
+      // Wait for Supabase to process the auth tokens from URL hash
+      const { data: { session }, error: sessionError } = 
+        await supabase.auth.getSession()
 
+      console.log("Session:", session, "Error:", sessionError)
+
+      if (!session) {
+        // Give it one more second and retry
+        await new Promise(r => setTimeout(r, 1500))
+        const { data: { session: retrySession } } = 
+          await supabase.auth.getSession()
+        
+        console.log("Retry session:", retrySession)
+        if (!retrySession) { navigate("/login?error=no_session"); return }
+        
+        return checkUser(retrySession)
+      }
+
+      return checkUser(session)
+    }
+
+    const checkUser = async (session) => {
       const { data, error } = await supabase
         .from("user")
         .select("userid, record_status")
         .eq("userid", session.user.id)
         .single()
 
-      console.log("AuthCallback data:", data, "error:", error)
+      console.log("User row:", data, "Error:", error)
 
       if (error || !data) {
         navigate("/login?error=user_not_found")
@@ -24,7 +44,9 @@ export default function AuthCallback() {
       } else {
         navigate("/sales")
       }
-    })
+    }
+
+    handle()
   }, [navigate])
 
   return (
