@@ -20,13 +20,25 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function loadUser(authUser) {
-    const { data } = await supabase
-      .from("user")
-      .select("*")
-      .eq("userid", authUser.id)
-      .single()
-    if (data && data.record_status === "ACTIVE") setCurrentUser(data)
-    else setCurrentUser(null)
+    try {
+      const { data, error } = await supabase
+        .from("user")
+        .select("*")
+        .eq("userid", authUser.id)
+        .single()
+      
+      if (error) {
+        console.error("loadUser error:", error)
+        setCurrentUser(null)
+      } else if (data && data.record_status === "ACTIVE") {
+        setCurrentUser(data)
+      } else {
+        setCurrentUser(null)
+      }
+    } catch (err) {
+      console.error("loadUser exception:", err)
+      setCurrentUser(null)
+    }
     setLoading(false)
   }
 
