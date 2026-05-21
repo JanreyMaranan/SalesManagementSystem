@@ -11,7 +11,7 @@ function Prices() {
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase
-        .from('pricehistory')
+        .from('pricehist')
         .select(`prodcode, effdate, unitprice, product:prodcode(description)`)
         .order('prodcode')
         .order('effdate', { ascending: false })
